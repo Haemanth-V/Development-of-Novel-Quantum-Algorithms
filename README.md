@@ -64,7 +64,7 @@ We provide a pedagogical explanation and implementation of our code for N=2 osci
 * Post-analysis: Performed resource investigation studying the dependence of the optimized depths on the model parameters such as the ratio of spring constants over masses, the initial positions and velocities and the sparsity of the Hamiltonian. From this analysis we identify critical values beyond which the quantum algorithm becomes inefficient, i.e. requires an extremely large number of gates. (In Progress)
 
 ### Project Presentation Deck:
-_Upload/ Link a 3min. presentation deck here._
+[Slides](./Womanium_slides.pdf)
 
 See project presentation guidelines [here](https://docs.google.com/document/d/13nWF8AxFAfFYTWEYPT3BpPdYkqtxxSAjmuXj_zcMh-E/edit?usp=sharing)
 
