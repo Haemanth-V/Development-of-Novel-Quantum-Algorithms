@@ -1,0 +1,236 @@
+qfunc my_state_prep(output x: qbit[]) {
+  prepare_amplitudes([
+    0.440519326823,
+    0.881038653645,
+    0.0,
+    0.0,
+    0.125373998348,
+    0.004780172751,
+    0.118203739221,
+    0.0
+  ], 0.01, x);
+  unitary([
+    [
+      (1 + 0j),
+      0j,
+      0j,
+      0j,
+      0j,
+      0j,
+      0j,
+      0j
+    ],
+    [
+      0j,
+      (1 + 0j),
+      0j,
+      0j,
+      0j,
+      0j,
+      0j,
+      0j
+    ],
+    [
+      0j,
+      0j,
+      (1 + 0j),
+      0j,
+      0j,
+      0j,
+      0j,
+      0j
+    ],
+    [
+      0j,
+      0j,
+      0j,
+      (1 + 0j),
+      0j,
+      0j,
+      0j,
+      0j
+    ],
+    [0j, 0j, 0j, 0j, 1j, 0j, 0j, 0j],
+    [0j, 0j, 0j, 0j, 0j, 1j, 0j, 0j],
+    [0j, 0j, 0j, 0j, 0j, 0j, 1j, 0j],
+    [0j, 0j, 0j, 0j, 0j, 0j, 0j, 1j]
+  ], x);
+}
+
+qfunc apply_pauli_term(pauli_string: PauliTerm, x: qbit[]) {
+  repeat (index: x.len) {
+    switch(pauli_string.pauli[index], [lambda() {
+      IDENTITY(x[(pauli_string.pauli.len - index) - 1]);
+    }, lambda() {
+      X(x[(pauli_string.pauli.len - index) - 1]);
+    }, lambda() {
+      Y(x[(pauli_string.pauli.len - index) - 1]);
+    }, lambda() {
+      Z(x[(pauli_string.pauli.len - index) - 1]);
+    }]);
+    if (pauli_string.coefficient < 0) {
+      unitary([[(-1), 0], [0, (-1)]], x[0]);
+    }
+  }
+}
+
+qfunc lcu_paulis(pauli_terms_list: PauliTerm[], probs: real[], block: qnum, data: qbit[]) {
+  within {
+    inplace_prepare_state(probs, 0.0, block);
+  } apply {
+    repeat (i: pauli_terms_list.len) {
+      control (block == i) {
+        apply_pauli_term(pauli_terms_list[i], data);
+      }
+    }
+  }
+}
+
+qfunc my_walk_operator(block: qbit[], data: qbit[]) {
+  lcu_paulis([
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::I,
+        Pauli::I
+      ],
+      coefficient=0.012536742564
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::I,
+        Pauli::X
+      ],
+      coefficient=0.015811388301
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::I,
+        Pauli::Z
+      ],
+      coefficient=0.034897422339
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::X,
+        Pauli::X
+      ],
+      coefficient=0.016770509831
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::Y,
+        Pauli::Y
+      ],
+      coefficient=0.016770509831
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::Z,
+        Pauli::I
+      ],
+      coefficient=0.012536742564
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::Z,
+        Pauli::X
+      ],
+      coefficient=0.015811388301
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::X,
+        Pauli::Z,
+        Pauli::Z
+      ],
+      coefficient=0.034897422339
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::Y,
+        Pauli::I,
+        Pauli::Y
+      ],
+      coefficient=-0.015811388301
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::Y,
+        Pauli::X,
+        Pauli::Y
+      ],
+      coefficient=0.016770509831
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::Y,
+        Pauli::Y,
+        Pauli::X
+      ],
+      coefficient=-0.016770509831
+    },
+    PauliTerm {
+      pauli=[
+        Pauli::Y,
+        Pauli::Z,
+        Pauli::Y
+      ],
+      coefficient=-0.015811388301
+    }
+  ], [
+    0.055670379969,
+    0.070211698938,
+    0.154964716844,
+    0.074470752656,
+    0.074470752656,
+    0.055670379969,
+    0.070211698938,
+    0.154964716844,
+    0.070211698938,
+    0.074470752656,
+    0.074470752656,
+    0.070211698938,
+    0,
+    0,
+    0,
+    0
+  ], block, data);
+  reflect_about_zero(block);
+  RY(2 * pi, block[0]);
+}
+
+qfunc lcu_cheb(coef: real[], generalized_signs: int[], walk_operator: qfunc (qnum, qbit[]), walk_block: qnum, walk_data: qbit[], cheb_block: qnum) {
+  within {
+    inplace_prepare_state(coef, 0.0, cheb_block);
+  } apply {
+    repeat (k: generalized_signs.len) {
+      control (cheb_block == k) {
+        U(0, 0, 0, (pi / 2) * generalized_signs[k], walk_data[0]);
+        power (k) {
+          walk_operator(walk_block, walk_data);
+        }
+      }
+    }
+  }
+}
+
+qfunc main(output ham_block: qnum, output data: qnum, output exp_block: qnum) {
+  allocate(2, exp_block);
+  allocate(4, ham_block);
+  my_state_prep(data);
+  lcu_cheb([
+    0.362940809877,
+    0.490932045143,
+    0.14612714498,
+    0
+  ], [0.0, 1.0, 2.0], lambda(x, y) {
+    my_walk_operator(x, y);
+  }, ham_block, data, exp_block);
+}
