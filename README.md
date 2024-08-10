@@ -33,12 +33,12 @@ Ensure your repository does not contain any personal or team tokens/access infor
 ### Team Information:
 Team Member 1:
  - Full Name: Dimitrios Kranas
- - Womanium Program Enrollment ID (see Welcome Email, format- WQ24-xxxxxxxxxxxxxxx): WQ24-jxmwGzz36ksdTAF
+ - Womanium Program Enrollment ID: WQ24-jxmwGzz36ksdTAF
 
 
 Team Member 2:
  - Full Name: Haemanth Velmurugan
- - Womanium Program Enrollment ID (see Welcome Email, format- WQ24-xxxxxxxxxxxxxxx): WQ24-Fihy1HfM5HbXvCz
+ - Womanium Program Enrollment ID: WQ24-Fihy1HfM5HbXvCz
 
 
 Team Member 3:
@@ -47,8 +47,21 @@ Team Member 3:
 
 
 ### Project Solution:
-_Include a comprehensive summary of all important information about your project solution here._
-All necessary code files and any additional information required to judge your project solution should be included in the repository. 
+We have worked on implementing the paper **"Exponential quantum speedup in simulating coupled classical oscillators"**
+
+The collection of notebooks in our repository describes extensively our work in which we have achieved the following goals:
+
+* Completion of the basic required tasks:
+  * Preparation of the initial quantum state in which we encoded the initial positions and velocities of the oscillators
+  * Implementation of the Hamiltonian simulation utilizing the quantization method.
+We provide a pedagogical explanation and implementation of our code for N=2 oscillators and then generalize it for arbitrary number N.
+
+* Developing our own quantum circuits to address obstacles in the implementation, especially, with encoding phase and initial state preparation, by extending the inbuilt functions of Classiq:
+  * Developed an algorithm to perform the LCU decomposition of Pauli strings (i.e. tensor products of Pauli matrices) for Hamiltonian matrices of arbitrary dimensionality N x N.
+  * Extended Classiq's function apply_pauli_term() to allow for LCU decomposition of a Hamiltonian with negative expansion coefficients
+  * Integrated Classiq's prepare_amplitudes() function, using a unitary `U_matrix` that contains 1's and "i"'s appropriately in its diagonal, to construct a state with complex (purely imaginary) amplitudes
+
+* Post-analysis: Performed resource investigation studying the dependence of the optimized depths on the model parameters such as the ratio of spring constants over masses, the initial positions and velocities and the sparsity of the Hamiltonian. From this analysis we identify critical values beyond which the quantum algorithm becomes inefficient, i.e. requires an extremely large number of gates. (In Progress)
 
 ### Project Presentation Deck:
 _Upload/ Link a 3min. presentation deck here._
